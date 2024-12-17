@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div id="chat-container">
+        <h1>Chatbot</h1>
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Type your message here...">
+        <button id="send-button">Send</button>
+    </div>
+
+    <script>
+        const sendButton = document.getElementById("send-button");
+        const userInput = document.getElementById("user-input");
+        const chatBox = document.getElementById("chat-box");
+
+        sendButton.addEventListener("click", () => {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // Display user message
+            const userDiv = document.createElement("div");
+            userDiv.textContent = "You: " + message;
+            chatBox.appendChild(userDiv);
+
+            // Send message to Flask server
+            fetch("/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message: message })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Display chatbot response
+                    const botDiv = document.createElement("div");
+                    botDiv.textContent = "Chatbot: " + data.response;
+                    chatBox.appendChild(botDiv);
+
+                    // Clear input field
+                    userInput.value = "";
+                    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+                });
+        });
+    </script>
+</body>
+
+</html>
